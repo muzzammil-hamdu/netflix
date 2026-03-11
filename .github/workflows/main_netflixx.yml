@@ -9,25 +9,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
-          cache: 'npm'
+          cache: npm
 
-      - name: Install dependencies and build
-        run: |
-          export NODE_OPTIONS=--openssl-legacy-provider
-          npm install
-          npm run build
+      - name: Install dependencies
+        run: npm install
 
-      - name: Upload artifact
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
@@ -36,26 +38,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_07BB1D77A0DD4E7DA9B26E3F62DA7FB3 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_62DAA9041CE742C093BBA6116EDD9DAC }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2FD8F592B9F5480CA6C532DBB1268FC1 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: netflixx
-          slot-name: Production
           package: .

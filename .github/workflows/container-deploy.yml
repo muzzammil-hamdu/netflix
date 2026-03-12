@@ -25,7 +25,7 @@ jobs:
       - name: Deploy image from ACR
         run: |
           az webapp config container set \
-            --name netflixx \
+            --name netflicx \
             --resource-group muzz \
             --docker-custom-image-name devopsacr123456.azurecr.io/netflix:latest \
             --docker-registry-server-url https://devopsacr123456.azurecr.io

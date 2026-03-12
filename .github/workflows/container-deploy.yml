@@ -33,5 +33,5 @@ jobs:
       - name: Restart Web App
         run: |
           az webapp restart \
-            --name netflixx \
+            --name netflicx \
             --resource-group muzz

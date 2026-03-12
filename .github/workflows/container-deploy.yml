@@ -25,13 +25,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Login to Azure Container Registry
-        run: |
-          az acr login --name devopsacr123456
+        run: az acr login --name devopsacr123456
 
       - name: Build Docker Image
-        run: |
-          docker build -t devopsacr123456.azurecr.io/netflix:latest .
+        run: docker build -t devopsacr123456.azurecr.io/netflix:latest .
 
       - name: Push Docker Image
-        run: |
-          docker push devopsacr123456.azurecr.io/netflix:latest
+        run: docker push devopsacr123456.azurecr.io/netflix:latest

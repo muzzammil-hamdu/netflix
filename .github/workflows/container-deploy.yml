@@ -1,12 +1,13 @@
-name: Build & Push Docker Image to ACR
+name: Deploy existing ACR image to Azure Web App
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
 
 jobs:
-  build-and-push:
+  deploy:
     runs-on: ubuntu-latest
 
     permissions:
@@ -14,21 +15,23 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Azure Login (OIDC)
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Login to Azure Container Registry
-        run: az acr login --name devopsacr123456
+      - name: Deploy image from ACR
+        run: |
+          az webapp config container set \
+            --name netflixx \
+            --resource-group muzz \
+            --docker-custom-image-name devopsacr123456.azurecr.io/netflix:latest \
+            --docker-registry-server-url https://devopsacr123456.azurecr.io
 
-      - name: Build Docker Image
-        run: docker build -t devopsacr123456.azurecr.io/netflix:latest .
-
-      - name: Push Docker Image
-        run: docker push devopsacr123456.azurecr.io/netflix:latest
+      - name: Restart Web App
+        run: |
+          az webapp restart \
+            --name netflixx \
+            --resource-group muzz
